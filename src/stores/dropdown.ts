@@ -6,7 +6,7 @@ interface State {
   dataValue: string | undefined;
   dataToken: DataInfo | null;
   dataForm: DataForm[] | null;
-  isLoading: boolean
+  isLoading: boolean;
 }
 
 export const ownStore = defineStore("userData", {
@@ -16,7 +16,7 @@ export const ownStore = defineStore("userData", {
       dataValue: undefined,
       dataToken: null,
       dataForm: null,
-      isLoading: false
+      isLoading: false,
     };
   },
   actions: {
@@ -24,38 +24,83 @@ export const ownStore = defineStore("userData", {
       this.dataValue = v;
     },
     async getData() {
-      const fakeData = [
-        {
-          name: "Сделка для примера 1",
-          created_by: 0,
-          price: 20000,
-          custom_fields_values: [
-            {
-              field_id: 294471,
-              values: [
-                {
-                  value: "Наш первый клиент",
-                },
-              ],
-            },
-          ],
-        },
-        {
-          name: "Сделка для примера 2",
-          price: 10000,
-          _embedded: {
-            tags: [
+      const str = {
+        Сделка: "leads",
+        Контакт: "contacts",
+        Компания: "companies",
+      };
+
+      const fakeDataValue = {
+        Сделка: [
+          {
+            name: "Сделка для примера 1",
+            created_by: 0,
+            price: 20000,
+            custom_fields_values: [
               {
-                id: 2719,
+                field_id: 294471,
+                values: [
+                  {
+                    value: "Наш первый клиент",
+                  },
+                ],
               },
             ],
           },
-        },
-      ];
+          {
+            name: "Сделка для примера 2",
+            price: 10000,
+            _embedded: {
+              tags: [
+                {
+                  id: 2719,
+                },
+              ],
+            },
+          },
+        ],
+        Контакт: [
+          {
+            name: "АО Рога и Копыта",
+            custom_fields_values: [
+              {
+                field_code: "PHONE",
+                values: [
+                  {
+                    value: "+7912322222",
+                    enum_code: "WORK",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        Компания: [
+          {
+            first_name: "Петр",
+            last_name: "Смирнов",
+            custom_fields_values: [
+              {
+                field_id: 271316,
+                values: [
+                  {
+                    value: "Директор",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: "Владимир Смирнов",
+            created_by: 47272,
+          },
+        ],
+      };
+      const fakeData = fakeDataValue[this.dataValue];
 
       try {
         const respons = await axios.post(
-          `http://${this.dataToken.domain}/api/v4/leads`,
+          `http://${this.dataToken.domain}/api/v4/${str[this.dataValue]}`,
           { fakeData },
           {
             headers: {
@@ -64,21 +109,24 @@ export const ownStore = defineStore("userData", {
           }
         );
 
+        const objValue: DataForm[] = Object.values(respons.data._embedded);
+
         const newId = {
-          id: respons.data._embedded.leads[0].id,
+          id: objValue[0][0].id,
           name: this.dataValue,
         };
+
         const prevData = this.dataForm === null ? "" : [...this.dataForm];
         const data = [...prevData, newId];
         this.dataForm = data;
-        this.isLoading = false
+        this.isLoading = false;
       } catch (error) {
         alert(error);
         console.log(error);
       }
     },
     async getToken() {
-      this.isLoading = true
+      this.isLoading = true;
       try {
         const respons = await axios.get(
           "http://test.gnzs.ru/oauth/get-token.php",

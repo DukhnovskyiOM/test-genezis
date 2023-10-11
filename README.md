@@ -42,3 +42,18 @@ npm run dev
 ```sh
 npm run build
 ```
+
+
+OSX
+
+отключить cors на mac через терминал (перед запуском закрыть chrome)- 
+open -n -a /Applications/Google\ Chrome.app --args --user-data-dir="/tmp/someFolderName" --disable-web-security
+
+
+Windows
+
+Right click on desktop, add new shortcut
+Add the target as "[PATH_TO_CHROME]\chrome.exe" --disable-web-security --disable-gpu --user-data-dir=%LOCALAPPDATA%\Google\chromeTemp
+Click OK.
+
+NOTE: On Windows command will be: "C:\Program Files\Google\Chrome\Application\chrome.exe" --disable-web-security --disable-gpu --user-data-dir=%LOCALAPPDATA%\Google\chromeTemp
